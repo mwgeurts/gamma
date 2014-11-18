@@ -8,6 +8,14 @@ CalcGamma computes 1-D, 2-D, or 3-D global or absolute gamma between two dataset
 
 This function optionally uses the Parallel Computing Toolbox GPU interp functions to increase computation speed. A try-catch statement is used to test for GPU support. In addition, for memory management, the meshgrid and data arrays are converted to single precision during interpolation. This function calls Event.m to log execution status, if available.
 
+## Contents
+
+* [MATLAB Function Use](README.md#matlab-function-use)
+* [Example](README.md#example)
+* [Gamma Computation Methods](README.md#gamma-computation-methods)
+* [Compatibility and Requirements](README.md#compatibility-and-requirements)
+* [License](README.md#license)
+
 ## MATLAB Function Use
 
 The following variables are required for proper execution: 
