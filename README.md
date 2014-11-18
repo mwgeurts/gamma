@@ -66,6 +66,7 @@ where:
 *Dc(Rc)* and *Dm(Rm)* represent the reference and measured signal at each *Rc* and *Rm*, respectively, and
 
 *&Delta;dM* and *&Delta;DM* represent the absolute and Distance To Agreement Gamma criterion (by default 2%/1mm), respectively.  
+
 The absolute criterion is typically given in percent and can refer to a percent of the maximum dose (commonly called the global method) or a percentage of the voxel *Rm* being evaluated (commonly called the local method).  The application is capable of computing gamma using either approach, and can be set when calling CalcGamma.m by passing a boolean value of 1 (for local) or 0 (for global).  By default, the global method (0) is used.
 
 The computation applied in the tool is the 1D algorithm, in that the distance to agreement criterion is evaluated only along the dimension of the reference profile when determining *min{&Gamma;(Rm,Rc}&forall;{Rc}*. To accomplish this, the reference profile is shifted relative to the measured profile using linear 1D CUDA (when available) interpolation.  For each shift, *&Gamma;(Rm,Rc}* is computed, and the minimum value *&gamma;* is determined.  To improve computation efficiency, the computation space *&forall;{Rc}* is limited to twice the distance to agreement parameter.  Thus, the maximum "real" Gamma index returned by the application is 2.
