@@ -6,7 +6,7 @@ by Mark Geurts <mark.w.geurts@gmail.com>
 
 CalcGamma computes 1-D, 2-D, or 3-D global or absolute gamma between two datasets (reference and target) given a defined coordinate space. The datasets must have the same number of dimensions, although they can be different sizes. Gamma will be computed for each target dose point by shifting the reference image (using linear interpolation) and determining the minimum Gamma index across all shifts.
 
-This function optionally uses the Parallel Computing Toolbox GPU interp functions to increase computation speed. A try-catch statement is used to test for GPU support. In addition, for memory management, the meshgrid and data arrays are converted to single precision during interpolation. This function calls Event.m to log execution status, if available.
+This function optionally uses the Parallel Computing Toolbox GPU interp functions to increase computation speed. A try-catch statement is used to test for GPU support. In addition, for memory management, the meshgrid and data arrays are converted to single precision during interpolation. This function calls [Event()](https://github.com/mwgeurts/viewray_radiso/blob/master/Event.m) to log execution status, if available.
 
 ## Contents
 
