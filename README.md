@@ -1,12 +1,11 @@
-CalcGamma
-===========
+## CalcGamma
 
 by Mark Geurts <mark.w.geurts@gmail.com>
 <br>Copyright &copy; 2014, University of Wisconsin Board of Regents
 
-CalcGamma computes 1-D, 2-D, or 3-D global or absolute gamma between two datasets (reference and target) given a defined coordinate space. The datasets must have the same number of dimensions, although they can be different sizes. Gamma will be computed for each target dose point by shifting the reference image (using linear interpolation) and determining the minimum Gamma index across all shifts.
+`CalcGamma()` computes 1-D, 2-D, or 3-D global or absolute gamma between two datasets (reference and target) given a defined coordinate space. The datasets must have the same number of dimensions, although they can be different sizes. Gamma will be computed for each target dose point by shifting the reference image (using linear interpolation) and determining the minimum Gamma index across all shifts.
 
-This function optionally uses the Parallel Computing Toolbox GPU interp functions to increase computation speed. A try-catch statement is used to test for GPU support. In addition, for memory management, the meshgrid and data arrays are converted to single precision during interpolation. This function calls [Event()](https://github.com/mwgeurts/viewray_radiso/blob/master/Event.m) to log execution status, if available.
+This function optionally uses the Parallel Computing Toolbox GPU interp functions to increase computation speed. A try-catch statement is used to test for GPU support. In addition, for memory management, the meshgrid and data arrays are converted to single precision during interpolation.
 
 ## Contents
 
@@ -14,6 +13,7 @@ This function optionally uses the Parallel Computing Toolbox GPU interp function
 * [Example](README.md#example)
 * [Gamma Computation Methods](README.md#gamma-computation-methods)
 * [Compatibility and Requirements](README.md#compatibility-and-requirements)
+* [Event Calling](README.md#event-calling)
 * [License](README.md#license)
 
 ## MATLAB Function Use
@@ -74,6 +74,11 @@ The computation applied in the tool is the 1D algorithm, in that the distance to
 ## Compatibility and Requirements
 
 This tool has been tested with MATLAB 8.3 and 8.4.  The Parallel Computing toolbox (versions 6.4 and 6.5 tested and a CUDA-compatible GPU are required to run GPU based interpolation (CPU interpolation is automatically supported if not present).
+
+## Event Calling
+
+These functions optionally return execution status and error information to an `Event()` function. If available in the MATLAB path, `Event()` will be called with one or two variables: the first variable is a string containing the status information, while the second is the status classification (WARN or ERROR). If the status information is only informative, the second argument is not included.  Finally, if no `Event()` function is available errors will still be thrown via the standard `error()` MATLAB function.
+
 
 ## License
 
