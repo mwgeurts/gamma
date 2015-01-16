@@ -496,8 +496,8 @@ catch
                         % k is the z axis step value
                         k = z/res * varargin{4};
 
-                        % Check restrictSearch flag
-                        if restrictSearch == 0 || sum(abs([x y z]) > 0) == 1
+                        % Check restricted search flag
+                        if varargin{7} == 0 || sum(abs([x y z]) > 0) == 1
                             
                             % Run CPU interp3 function to compute the reference
                             % values at the specified target coordinate points
