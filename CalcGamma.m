@@ -82,7 +82,6 @@ if exist('Event', 'file') == 2
     tic;
 end
 
-
 % Check if the reference structure contains width, start, and data fields,
 % and if the size of the width and start vectors are equal
 if ~isfield(varargin{1}, 'width') || ~isfield(varargin{1}, 'start') || ...
@@ -135,6 +134,7 @@ end
 
 % If a local/global Gamma flag was not provided
 if nargin < 4
+
     % Assume the computation is global
     varargin{5} = 0;
     
@@ -142,18 +142,25 @@ if nargin < 4
     if exist('Event', 'file') == 2
         Event('Gamma calculation assumed to global');
     end
+    
+% Otherwise if gamma was set to global
 elseif varargin{5} == 0  
+
     % Log type
     if exist('Event', 'file') == 2
         Event('Gamma calculation set to global');
     end
+    
+% Otherwise, it was local
 elseif exist('Event', 'file') == 2
+
     % Log type
     Event('Gamma calculation set to local');  
 end
 
 % If a reference absolute value was not provided
 if nargin < 6
+
     % Assume the reference value is the maximum value in the reference data
     % array (ie, Gamma % criterion is % of max value)
     varargin{6} = max(max(max(varargin{1}.data)));
@@ -165,6 +172,7 @@ end
 
 % If a restrict search flag was not provided
 if nargin < 7
+
     % Disable restricted search
     varargin{7} = 0;
     
@@ -176,6 +184,8 @@ end
 
 % If the reference dataset is 1-D
 if size(varargin{1}.width,2) == 1
+
+    % Log event
     if exist('Event', 'file') == 2
         Event('Reference dataset is 1-D');
     end
@@ -193,6 +203,8 @@ if size(varargin{1}.width,2) == 1
     
 % Otherwise, if the reference dataset is 2-D
 elseif size(varargin{1}.width,2) == 2
+
+    % Log event
     if exist('Event', 'file') == 2
         Event('Reference dataset is 2-D');
     end
@@ -207,6 +219,8 @@ elseif size(varargin{1}.width,2) == 2
     
 % Otherwise, if the reference dataset is 3-D
 elseif size(varargin{1}.width,2) == 3
+
+    % Log event
     if exist('Event', 'file') == 2
         Event('Reference dataset is 3-D');
     end
@@ -223,6 +237,7 @@ elseif size(varargin{1}.width,2) == 3
 
 % Otherwise, if the reference data is of higher dimension
 else
+
     % Throw an error and stop execution
     if exist('Event', 'file') == 2
         Event('The fixed data structure contains too many dimensions', ...
@@ -234,6 +249,8 @@ end
 
 % If the target dataset is 1-D
 if size(varargin{2}.width,2) == 1
+
+    % Log event
     if exist('Event', 'file') == 2
         Event('Target dataset is 1-D');
     end
@@ -251,6 +268,8 @@ if size(varargin{2}.width,2) == 1
     
 % Otherwise, if the target dataset is 2-D
 elseif size(varargin{2}.width,2) == 2
+
+    % Log event
     if exist('Event', 'file') == 2
         Event('Target dataset is 2-D');
     end
@@ -265,6 +284,8 @@ elseif size(varargin{2}.width,2) == 2
     
 % Otherwise, if the target dataset is 3-D
 elseif size(varargin{2}.width,2) == 3
+
+    % Log event
     if exist('Event', 'file') == 2
         Event('Target dataset is 3-D');
     end
@@ -281,6 +302,7 @@ elseif size(varargin{2}.width,2) == 3
     
 % Otherwise, if the reference data is of higher dimension
 else
+
     % Throw an error and stop execution
     if exist('Event', 'file') == 2
         Event('The target data structure contains too many dimensions', ...
@@ -296,14 +318,20 @@ end
 % mm means that gamma will be calculated at intervals of 3/5 = 0.6 mm.
 % Different resolutions can be set for different dimensions of data. 
 if size(varargin{2}.width,2) == 1
+
     % Set 1-D resolution
     res = 100;
+    
 elseif size(varargin{2}.width,2) == 2
+
     % Set 2-D resolution
     res = 100;
+    
 elseif size(varargin{2}.width,2) == 3
+
     % Set 3-D resolution
     res = 20;
+    
 end
 
 % Log resolution
@@ -317,9 +345,11 @@ gamma = ones(size(varargin{2}.data)) * 2;
 
 % Log number of gamma calculations (for status updates on 3D calcs)
 if varargin{7} == 1
+
     % Compute number of restricted search calcs
     num = res * 4 * size(varargin{2}.width,2);
 else
+
     % Compute total number of calcs
     num = res * 4 ^ size(varargin{2}.width,2);
 end
@@ -415,6 +445,7 @@ try
                     
                 % Otherwise, the data is 2-D
                 else
+                
                     % Run GPU interp2 function to compute the reference
                     % values at the specified target coordinate points
                     interp = gather(interp2(gpuArray(refX), gpuArray(refY), ...
@@ -431,6 +462,7 @@ try
             
         % Otherwise, the data is 1-D
         else
+        
             % Run GPU interp function to compute the reference values at 
             % the specified target coordinate points
             interp = gather(interp1(gpuArray(refX), ...
@@ -447,6 +479,7 @@ try
    
 % If GPU fails, revert to CPU computation
 catch
+
     % Log GPU failure
     if exist('Event', 'file') == 2
         Event('GPU failed, reverting to CPU method', 'WARN'); 
@@ -457,6 +490,7 @@ catch
     % from -2 to +2 multiplied by the number of interpolation steps.  
     % Effectively, this evaluates gamma from -2 * DTA to +2 * DTA.
     for x = -2*res:2*res
+    
         % i is the x axis step value
         i = x/res * varargin{4};
         
@@ -524,6 +558,7 @@ catch
                     
                 % Otherwise, the data is 2-D
                 else
+                
                     % Run CPU interp2 function to compute the reference
                     % values at the specified target coordinate points
                     interp = interp2(refX, refY, single(varargin{1}.data), ...
@@ -539,6 +574,7 @@ catch
             
         % Otherwise, the data is 1-D
         else
+        
             % Run CPU interp function to compute the reference values at 
             % the specified target coordinate points
             interp = interp1(refX, single(varargin{1}.data), tarX + i, ...
