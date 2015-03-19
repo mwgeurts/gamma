@@ -551,7 +551,7 @@ results{size(results,1),3} = ctime;
 
 % Declare gamma criteria
 percent = 3;
-dta = 0.3;
+dta = 3;
 local = 0;
 restrict = 1;
 
