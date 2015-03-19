@@ -33,7 +33,7 @@ function gamma = CalcGamma(varargin)
 %       flags.  The available options are 'local', 'refval', 'restrict',
 %       'res', and 'limit'.
 %
-% The following options can be passed to this argument:
+% The following options can be passed to this argument as name/value pairs:
 %   local: boolean, indicates whether to perform a local (1) or global (0) 
 %       Gamma computation. If not present, the function will assume a 
 %       global Gamma computation.
@@ -48,7 +48,7 @@ function gamma = CalcGamma(varargin)
 %       factor is 100 for 1D/2D and 20 for 3D calculations.
 %   limit: The DTA limit.  This number determines how far the function will 
 %       search in the distance axes when computing Gamma.  This also 
-%       therefore specifies the maximum "real" Gamma Index value.
+%       therefore specifies the maximum "real" Gamma Index value. 
 %
 % The following variables are returned upon succesful completion:
 %   gamma: array of the same dimensions as varargin{2}.data containing the
@@ -370,16 +370,6 @@ elseif size(varargin{2}.width,2) == 3
         varargin{2}.width(3):varargin{2}.start(3) + varargin{2}.width(3) ...
         * (size(varargin{2}.data,3) - 1)));
     
-% Otherwise, if the reference data is of higher dimension
-else
-
-    % Throw an error and stop execution
-    if exist('Event', 'file') == 2
-        Event('The target data structure contains too many dimensions', ...
-            'ERROR');
-    else
-        error('The target data structure contains too many dimensions');
-    end
 end
 
 %% Initialize variables
