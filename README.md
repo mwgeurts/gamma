@@ -23,7 +23,8 @@ The following variables are required for proper execution:
 * varargin{1}: structure containing the reference data, where the field start is an array containing the coordinates along each dimension of the first voxel, width is an array containing the width of each voxel along each dimension, and data is an n-dimensional array
 * varargin{2}: structure containing the target data, where the field start is an array containing the coordinates along each dimension of the first voxel, width is an array containing the width of each voxel along each dimension, and data is an n-dimensional array
 * varargin{3}: Gamma absolute criterion percentage
-* varargin{4}: Gamma Distance To Agreement (DTA) criterion, in the same units as the reference and target width structure fields * varargin{5} (optional): boolean, indicates whether to perform a local (1) or global (0) Gamma computation.  If not present, the function will assume a global Gamma computation.
+* varargin{4}: Gamma Distance To Agreement (DTA) criterion, in the same units as the reference and target width structure fields 
+* varargin{5} (optional): boolean, indicates whether to perform a local (1) or global (0) Gamma computation.  If not present, the function will assume a global Gamma computation.
 * varargin{6} (optional): reference value for the global absolute criterion.  Is used with the percentage from varargin{3} to compute absolute value.  If not present, the maximum value in the reference data is used.
 * varargin{7} (optional): restricted search flag. If 1, only the gamma values along the X/Y/Z axes are computed during 3D comptation. If 0 or not provided, the entire rectangular search space is computed.
 

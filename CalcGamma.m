@@ -10,7 +10,7 @@ function gamma = CalcGamma(varargin)
 % functions to increase computation speed. A try-catch statement is used
 % to test for GPU support. In addition, for memory management, the
 % meshgrid and data arrays are converted to single precision during
-% interpolation. This function calls Event.m to log execution status, if 
+% interpolation. This function calls Event() to log execution status, if 
 % available.
 %
 % For more information on the Gamma evaluation function, see D. A. Low et 
@@ -29,16 +29,26 @@ function gamma = CalcGamma(varargin)
 %   varargin{3}: Gamma absolute criterion percentage
 %   varargin{4}: Gamma Distance To Agreement (DTA) criterion, in the same
 %       units as the reference and target width structure fields  
-%   varargin{5} (optional): boolean, indicates whether to perform a local 
-%       (1) or global (0) Gamma computation.  If not present, the function
-%       will assume a global Gamma computation.
-%   varargin{6} (optional): reference value for the global absolute 
-%       criterion.  Is used with the percentage from varargin{3} to compute
-%       absolute value.  If not present, the maximum value in the reference
-%       data is used.
-%   varargin{7} (optional): restricted search flag. If 1, only the gamma 
-%       values along the X/Y/Z axes are computed during 3D comptation. If 
-%       0 or not provided, the entire rectangular search space is computed.
+%   varargin{5:end} (optional): additional parameters preceded by option
+%       flags.  The available options are 'local', 'refval', 'restrict',
+%       'res', and 'limit'.
+%
+% The following options can be passed to this argument:
+%   local: boolean, indicates whether to perform a local (1) or global (0) 
+%       Gamma computation. If not present, the function will assume a 
+%       global Gamma computation.
+%   refval: reference value for the global absolute criterion. Is used with 
+%       the percentage from varargin{3} to compute absolute value. If not 
+%       present, the maximum value in the reference data is used.
+%   restrict: restricted search flag. If 1, only the gamma values along the 
+%       X/Y/Z axes are computed during 3D comptation. If 0 or not provided, 
+%       the entire rectangular search space is computed.
+%   res: DTA resolution factor.  The number of distance steps equal the
+%       resolution factor multiplied by the limit.  If not provided, the
+%       factor is 100 for 1D/2D and 20 for 3D calculations.
+%   limit: The DTA limit.  This number determines how far the function will 
+%       search in the distance axes when computing Gamma.  This also 
+%       therefore specifies the maximum "real" Gamma Index value.
 %
 % The following variables are returned upon succesful completion:
 %   gamma: array of the same dimensions as varargin{2}.data containing the
@@ -58,7 +68,7 @@ function gamma = CalcGamma(varargin)
 %   dta = 0.5; % mm
 %   local = 0; % Perform global gamma
 %   
-%   gamma = CalcGamma(reference, target, percent, dta, local);
+%   gamma = CalcGamma(reference, target, percent, dta, 'local', local);
 %
 % Author: Mark Geurts, mark.w.geurts@gmail.com
 % Copyright (C) 2014 University of Wisconsin Board of Regents
@@ -76,10 +86,16 @@ function gamma = CalcGamma(varargin)
 % You should have received a copy of the GNU General Public License along 
 % with this program. If not, see http://www.gnu.org/licenses/.
 
-% Log initialization and start timer
-if exist('Event', 'file') == 2
-    Event('Beginning Gamma calculation');
-    tic;
+%% Validate Inputs
+% Verify at least four input arguments are provided
+if nargin < 4
+    
+    % If not, throw an error and stop execution
+    if exist('Event', 'file') == 2
+        Event('Too few input argumenst passed to CalcGamma', 'ERROR');
+    else
+        error('Too few input argumenst passed to CalcGamma');
+    end
 end
 
 % Check if the reference structure contains width, start, and data fields,
@@ -129,59 +145,113 @@ end
 
 % Log validation completed
 if exist('Event', 'file') == 2
-    Event('Data validation completed');
+    Event('Data validation completed, beginning Gamma computation');
+    tic;
 end
 
-% If a local/global Gamma flag was not provided
-if nargin < 4
+%% Declare default options
+% local indicates whether to perform a local (1) or global (0) Gamma 
+% computation. If not present, the function will assume a global Gamma 
+% computation.
+local = 0;
 
-    % Assume the computation is global
-    varargin{5} = 0;
+% refval is the reference value for the global absolute criterion. Is used 
+% with the percentage from varargin{3} to compute absolute value. If not 
+% present, the maximum value in the reference data is used.
+refval = max(max(max(varargin{1}.data)));
+
+% restricted search flag. If 1, only the gamma values along the X/Y/Z axes 
+% are computed during 3D comptation. If 0 or not provided, the entire 
+% rectangular search space is computed.
+restrict = 0;
+
+% The resolution parameter determines the number of steps (relative to 
+% the distance to agreement) that each reference voxel will be
+% interpolated to and gamma calculated.  A value of 5 with a DTA of 3
+% mm means that gamma will be calculated at intervals of 3/5 = 0.6 mm.
+% Different resolutions can be set for different dimensions of data. 
+if size(varargin{2}.width,2) == 1
+
+    % Set 1-D resolution
+    res = 100;
     
-    % Log type
-    if exist('Event', 'file') == 2
+elseif size(varargin{2}.width,2) == 2
+
+    % Set 2-D resolution
+    res = 50;
+    
+elseif size(varargin{2}.width,2) == 3
+
+    % Set 3-D resolution
+    res = 20;
+    
+end
+
+% The search limit parameter determines how far the function will search in
+% the distance axes when computing Gamma.  This also therefore specifies
+% the maximum believable Gamma Index value.  Typically this value is 2.
+% This should always be set to an integer.
+limit = 2;
+
+%% Search for provided options
+% Load data structure from varargin
+for i = 5:nargin
+    
+    % If the local option is set
+    if strcmp(varargin{i}, 'local')
+        local = varargin{i+1}; 
+        
+    % If the refval option is set
+    elseif strcmp(varargin{i}, 'refval')
+        refval = varargin{i+1}; 
+        
+    % If the restrict option is set
+    elseif strcmp(varargin{i}, 'restrict')
+        restrict = varargin{i+1}; 
+        
+    % If the res option is set
+    elseif strcmp(varargin{i}, 'res')
+        res = varargin{i+1}; 
+        
+    % If the limit option is set
+    elseif strcmp(varargin{i}, 'limit')
+        limit = varargin{i+1}; 
+    
+    % If the unit option is set (for unit testing)
+    elseif strcmp(varargin{i}, 'unit')
+        unit = varargin{i+1}; 
+    end
+end
+
+%% Log options
+% If Event reporting is enabled
+if exist('Event', 'file') == 2
+    
+    % Log local
+    if local == 1
+        Event('Gamma calculation set to local');  
+    else
         Event('Gamma calculation assumed to global');
     end
     
-% Otherwise if gamma was set to global
-elseif varargin{5} == 0  
-
-    % Log type
-    if exist('Event', 'file') == 2
-        Event('Gamma calculation set to global');
-    end
+    % Log refval
+    Event(sprintf('Reference value set to %g', refval));
     
-% Otherwise, it was local
-elseif exist('Event', 'file') == 2
-
-    % Log type
-    Event('Gamma calculation set to local');  
-end
-
-% If a reference absolute value was not provided
-if nargin < 6
-
-    % Assume the reference value is the maximum value in the reference data
-    % array (ie, Gamma % criterion is % of max value)
-    varargin{6} = max(max(max(varargin{1}.data)));
-    if exist('Event', 'file') == 2
-        Event(['No reference value was provided, maximum value in ', ...
-            'dataset used']);
+    % Log restrict
+    if restrict == 1
+        Event('Restricted search enabled');  
+    else
+        Event('Restricted search disabled');
     end
-end
 
-% If a restrict search flag was not provided
-if nargin < 7
-
-    % Disable restricted search
-    varargin{7} = 0;
+    % Log res
+    Event(sprintf('Resolution set to %g', res));
     
-    % Log result
-    if exist('Event', 'file') == 2
-        Event('Restricted search disabled by default');
-    end
+    % Log limit
+    Event(sprintf('DTA limit set to %g', limit));
 end
 
+%% Compute mesh grids
 % If the reference dataset is 1-D
 if size(varargin{1}.width,2) == 1
 
@@ -312,46 +382,21 @@ else
     end
 end
 
-% The resolution parameter determines the number of steps (relative to 
-% the distance to agreement) that each reference voxel will be
-% interpolated to and gamma calculated.  A value of 5 with a DTA of 3
-% mm means that gamma will be calculated at intervals of 3/5 = 0.6 mm.
-% Different resolutions can be set for different dimensions of data. 
-if size(varargin{2}.width,2) == 1
-
-    % Set 1-D resolution
-    res = 100;
-    
-elseif size(varargin{2}.width,2) == 2
-
-    % Set 2-D resolution
-    res = 100;
-    
-elseif size(varargin{2}.width,2) == 3
-
-    % Set 3-D resolution
-    res = 20;
-    
-end
-
-% Log resolution
-if exist('Event', 'file') == 2
-    Event(sprintf('Interpolation resolution set to %i', res));
-end
-
-% Generate an initial gamma volume with values of 2 (this is the maximum
-% reliable value of gamma).
-gamma = ones(size(varargin{2}.data)) * 2;
+%% Initialize variables
+% Generate an initial gamma volume with values of 2^2 (this is the maximum
+% reliable value of gamma, see description of limit above).  Note that
+% gamma-squared is stored during computation; sqrt is computed at the end.
+gamma = ones(size(varargin{2}.data)) * (limit ^ 2);
 
 % Log number of gamma calculations (for status updates on 3D calcs)
-if varargin{7} == 1
+if restrict == 1
 
     % Compute number of restricted search calcs
-    num = res * 4 * size(varargin{2}.width,2);
+    num = res * (limit * 2) * size(varargin{2}.width, 2);
 else
 
     % Compute total number of calcs
-    num = res * 4 ^ size(varargin{2}.width,2);
+    num = res * (limit * 2) ^ size(varargin{2}.width, 2);
 end
 
 % num is the number of iterations, num * numel the total number of
@@ -363,8 +408,15 @@ end
 % Initialize counter (for progress indicator)
 n = 0;
 
+%% Begin computation
 % Start try-catch block to safely test for CUDA functionality
 try
+    % If the unit test option is set, throw an error to force CPU
+    % computation
+    if exist('unit', 'var') == 1 && strcmp(unit, 'cpu')
+        error('Reverting to CPU computation for unit testing');
+    end
+    
     % Clear and initialize GPU memory.  If CUDA is not enabled, or if the
     % Parallel Computing Toolbox is not installed, this will error, and the
     % function will automatically rever to CPU computation via the catch
@@ -375,7 +427,7 @@ try
     % Note to support parfor loops indices must be integers, so x varies 
     % from -2 to +2 multiplied by the number of interpolation steps.  
     % Effectively, this evaluates gamma from -2 * DTA to +2 * DTA.
-    for x = -2*res:2*res
+    for x = -limit*res:limit*res
         
         % i is the x axis step value
         i = x/res * varargin{4};
@@ -393,7 +445,7 @@ try
             % integers, so y varies from -2 to +2 multiplied by the number
             % of interpolation steps.  Effectively, this evaluates gamma
             % from -2 * DTA to +2 * DTA.
-            for y = -2*res:2*res
+            for y = -limit*res:limit*res
                 
                 % j is the y axis step value
                 j = y/res * varargin{4};
@@ -403,7 +455,7 @@ try
                 k = 0;
                 
                 % If the data contains a third dimension
-                if size(varargin{1}.width,2) > 2
+                if size(varargin{1}.width, 2) > 2
                     
                     % Start a for loop to interpolate the dose array along 
                     % the z-direction.  Note to support parfor loops 
@@ -411,13 +463,13 @@ try
                     % multiplied by the number of interpolation steps.
                     % Effectively, this evaluates gamma from -2 * DTA to 
                     % +2 * DTA.
-                    for z = -2*res:2*res
+                    for z = -limit*res:limit*res
                         
                         % k is the z axis step value
                         k = z/res * varargin{4};
 
                         % Check restricted search flag
-                        if varargin{7} == 0 || sum(abs([x y z]) > 0) == 1
+                        if restrict == 0 || sum(abs([x y z]) > 0) == 1
                             
                             % Run GPU interp3 function to compute the reference
                             % values at the specified target coordinate points
@@ -430,7 +482,7 @@ try
                             % of the existing value or the new value
                             gamma = min(gamma, GammaEquation(interp, ...
                                 varargin{2}.data, i, j, k, varargin{3}, varargin{4}, ...
-                                varargin{6}, varargin{5}));
+                                refval, local));
                             
                             % Update counter 
                             n = n + 1;
@@ -456,7 +508,7 @@ try
                     % of the existing value or the new value
                     gamma = min(gamma, GammaEquation(interp, varargin{2}.data, ...
                         i, j, k, varargin{3}, varargin{4}, ...
-                        varargin{6}, varargin{5}));
+                        refval, local));
                 end
             end
             
@@ -473,10 +525,10 @@ try
             % existing value or the new value
             gamma = min(gamma, GammaEquation(interp, varargin{2}.data, ...
                 i, j, k, varargin{3}, varargin{4}, ...
-                varargin{6}, varargin{5}));
+                refval, local));
         end
     end
-   
+    
 % If GPU fails, revert to CPU computation
 catch
 
@@ -489,7 +541,7 @@ catch
     % Note to support parfor loops indices must be integers, so x varies 
     % from -2 to +2 multiplied by the number of interpolation steps.  
     % Effectively, this evaluates gamma from -2 * DTA to +2 * DTA.
-    for x = -2*res:2*res
+    for x = -limit*res:limit*res
     
         % i is the x axis step value
         i = x/res * varargin{4};
@@ -500,14 +552,14 @@ catch
         k = 0;
         
         % If the data contains a second dimension
-        if size(varargin{1}.width,2) > 1
+        if size(varargin{1}.width, 2) > 1
             
             % Start a for loop to interpolate the dose array along the
             % y-direction.  Note to support parfor loops indices must be
             % integers, so y varies from -2 to +2 multiplied by the number
             % of interpolation steps.  Effectively, this evaluates gamma
             % from -2 * DTA to +2 * DTA.
-            for y = -2*res:2*res
+            for y = -limit*res:limit*res
                 
                 % j is the y axis step value
                 j = y/res * varargin{4};
@@ -517,7 +569,7 @@ catch
                 k = 0;
                 
                 % If the data contains a third dimension
-                if size(varargin{1}.width,2) > 2
+                if size(varargin{1}.width, 2) > 2
                     
                     % Start a for loop to interpolate the dose array along 
                     % the z-direction.  Note to support parfor loops 
@@ -525,13 +577,13 @@ catch
                     % multiplied by the number of interpolation steps.
                     % Effectively, this evaluates gamma from -2 * DTA to 
                     % +2 * DTA.
-                    for z = -2*res:2*res
+                    for z = -limit*res:limit*res
                         
                         % k is the z axis step value
                         k = z/res * varargin{4};
 
                         % Check restricted search flag
-                        if varargin{7} == 0 || sum(abs([x y z]) > 0) == 1
+                        if restrict == 0 || sum(abs([x y z]) > 0) == 1
                             
                             % Run CPU interp3 function to compute the reference
                             % values at the specified target coordinate points
@@ -543,7 +595,7 @@ catch
                             % of the existing value or the new value
                             gamma = min(gamma, GammaEquation(interp, ...
                                 varargin{2}.data, i, j, k, varargin{3}, ...
-                                varargin{4}, varargin{6}, varargin{5}));
+                                varargin{4}, refval, local));
                             
                             % Update counter 
                             n = n + 1;
@@ -568,7 +620,7 @@ catch
                     % of the existing value or the new value
                     gamma = min(gamma, GammaEquation(interp, ...
                         varargin{2}.data, i, j, k, varargin{3}, ...
-                        varargin{4}, varargin{6}, varargin{5}));
+                        varargin{4}, refval, local));
                 end
             end
             
@@ -584,11 +636,15 @@ catch
             % existing value or the new value
             gamma = min(gamma, GammaEquation(interp, varargin{2}.data, ...
                 i, j, k, varargin{3}, varargin{4}, ...
-                varargin{6}, varargin{5}));
+                refval, local));
         end
     end
 end
     
+%% Finish up
+% Take square root of result
+gamma = sqrt(gamma);
+
 % Log completion
 if exist('Event', 'file') == 2
     Event(sprintf(['Gamma calculation completed successfully in ', ...
@@ -602,7 +658,8 @@ clear refX refY refZ tarX tarY tarZ interp;
 function gamma = GammaEquation(ref, tar, i, j, k, perc, dta, refval, local)
 % GammaEquation is the programmatic form of the Gamma definition as given
 % by Low et al in matrix form.  This function computes both local and
-% global Gamma, and is a subfunction for CalcGamma.
+% global Gamma, and is a subfunction for CalcGamma.  Note that this
+% equation returns Gamma-squared instead of Gamma.
 %
 % The following inputs are used for computation and are required:
 %   ref: the reference 3D array.  Must be the same size as tar
@@ -619,18 +676,22 @@ function gamma = GammaEquation(ref, tar, i, j, k, perc, dta, refval, local)
 %
 % The following variables are returned:
 %   gamma: a 3D array of the same dimensions as ref and interp of the
-%       computed gamma value for each voxel based on interp and i,j,k
-%
+%       computed gamma-squared value for each voxel based on interp and 
+%       i, j, k
 
 % If local is set to 1, perform a local Gamma computation
 if local == 1
+    
     % Gamma is defined as the sqrt((abs difference/relative tolerance)^2 +
-    % sum((voxel offset/dta)^2))
-    gamma = sqrt(((tar-ref)./(ref*perc/100)).^2 + ...
-        (i/dta)^2 + (j/dta)^2 + (k/dta)^2);
+    % sum((voxel offset/dta)^2)).  The sqrt is removed for computational
+    % efficiency.
+    gamma = ((tar - ref) ./ (ref * perc / 100)).^2 + ...
+        (i/dta)^2 + (j/dta)^2 + (k/dta)^2;
 else
+    
     % Gamma is defined as the sqrt((abs difference/absolute  tolerance)^2 +
-    % sum((voxel offset/dta)^2))
-    gamma = sqrt(((tar-ref)/(refval*perc/100)).^2 + ...
-        (i/dta)^2 + (j/dta)^2 + (k/dta)^2);
+    % sum((voxel offset/dta)^2)). The sqrt is removed for computational
+    % efficiency.
+    gamma = ((tar - ref) ./ (refval * perc / 100)).^2 + ...
+        (i/dta)^2 + (j/dta)^2 + (k/dta)^2;
 end
