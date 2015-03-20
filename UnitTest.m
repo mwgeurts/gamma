@@ -131,7 +131,7 @@ if nargout == 4
     reference = struct;
 end
 
-%% TEST 1/2/3/4: Large 1D Gamma
+%% TEST 1/2/3/4: Analytic 1D Gamma
 %
 % DESCRIPTION: This unit test creates a large analytic reference dataset, 
 %   modifies it by a known amount, and executes CalcGamma.  The gamma
@@ -237,7 +237,7 @@ end
 
 % Add the dataset size to the preamble
 preamble{length(preamble)+1} = ...
-    sprintf('| Large 1D Gamma Array | %i x %i  |', size(gamma));
+    sprintf('| Analytic 1D Gamma Array | %i x %i  |', size(gamma));
 
 % Add header to results table
 results{size(results,1)+1,1} = 'ID';
@@ -246,22 +246,22 @@ results{size(results,1),3} = 'Result';
 
 % Add GPU computation result
 results{size(results,1)+1,1} = '1';
-results{size(results,1),2} = 'Large 1D Gamma GPU Result within 1e-5';
+results{size(results,1),2} = 'Analytic 1D Gamma GPU Result within 1e-5';
 results{size(results,1),3} = gpf;
 
 % Add computation time
 results{size(results,1)+1,1} = '2';
-results{size(results,1),2} = 'Large 1D Gamma GPU Computation Time';
+results{size(results,1),2} = 'Analytic 1D Gamma GPU Computation Time';
 results{size(results,1),3} = gtime;
 
 % Add CPU computation result
 results{size(results,1)+1,1} = '3';
-results{size(results,1),2} = 'Large 1D Gamma CPU Result within 1e-5';
+results{size(results,1),2} = 'Analytic 1D Gamma CPU Result within 1e-5';
 results{size(results,1),3} = cpf;
 
 % Add computation time
 results{size(results,1)+1,1} = '4';
-results{size(results,1),2} = 'Large 1D Gamma GPU Computation Time';
+results{size(results,1),2} = 'Analytic 1D Gamma CPU Computation Time';
 results{size(results,1),3} = ctime;
 
 %% TEST 5/6/7/8: Beam Profile 1D Gamma
