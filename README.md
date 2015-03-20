@@ -18,7 +18,7 @@ gamma = CalcGamma(reference, target, percent, dta);
 gamma = CalcGamma(..., 'OptionName', OptionValue);
 ```
 
-See the [wiki](../../wiki) for information on the format of the input and arguments as well option flags and examples.
+See the [wiki](../../wiki) for information on the format of the input and arguments as well options and examples.
 
 ## License
 
