@@ -9,7 +9,7 @@ by Mark Geurts <mark.w.geurts@gmail.com>
 
 ## Installation
 
-To install this function, copy CalcGamma.mfrom this repository into your MATLAB path. If installing as a submodule into another git repository, execute `git submodule add https://github.com/mwgeurts/gamma`.  
+To install this function, copy `CalcGamma.m` from this repository into your MATLAB path. If installing as a submodule into another git repository, execute `git submodule add https://github.com/mwgeurts/gamma`.  
 
 ## Usage and Documentation
 
