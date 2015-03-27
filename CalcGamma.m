@@ -49,6 +49,7 @@ function gamma = CalcGamma(varargin)
 %   limit: The DTA limit.  This number determines how far the function will 
 %       search in the distance axes when computing Gamma.  This also 
 %       therefore specifies the maximum "real" Gamma Index value. 
+%   cpu: boolean, set to 1 to force CPU computation.
 %
 % The following variables are returned upon succesful completion:
 %   gamma: array of the same dimensions as varargin{2}.data containing the
@@ -217,9 +218,9 @@ for i = 5:nargin
     elseif strcmp(varargin{i}, 'limit')
         limit = varargin{i+1}; 
     
-    % If the unit option is set (for unit testing)
-    elseif strcmp(varargin{i}, 'unit')
-        unit = varargin{i+1}; 
+    % If the cpu option is set
+    elseif strcmp(varargin{i}, 'cpu')
+        cpu = varargin{i+1}; 
     end
 end
 
@@ -401,10 +402,9 @@ n = 0;
 %% Begin computation
 % Start try-catch block to safely test for CUDA functionality
 try
-    % If the unit test option is set, throw an error to force CPU
-    % computation
-    if exist('unit', 'var') == 1 && strcmp(unit, 'cpu')
-        error('Reverting to CPU computation for unit testing');
+    % If the cpu option is set, throw an error to force CPU computation
+    if exist('cpu', 'var') == 1 && cpu == 1
+        error('Reverting to CPU computation');
     end
     
     % Clear and initialize GPU memory.  If CUDA is not enabled, or if the
@@ -522,8 +522,8 @@ try
 % If GPU fails, revert to CPU computation
 catch
 
-    % Log GPU failure
-    if exist('Event', 'file') == 2
+    % Log GPU failure (if cpu flag is not set)
+    if exist('Event', 'file') == 2 && exist('cpu', 'var') ~= 1
         Event('GPU failed, reverting to CPU method', 'WARN'); 
     end
     
