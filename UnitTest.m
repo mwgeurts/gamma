@@ -194,9 +194,9 @@ try
             gpf = fail;
         end
         
-        % Execute CalcGamma again using CPU (through unit test flag)
+        % Execute CalcGamma again using CPU
         t = tic;
-        gamma = CalcGamma(ref, target, percent, dta, 'unit', 'cpu', ...
+        gamma = CalcGamma(ref, target, percent, dta, 'cpu', 1, ...
             'local', local);
         ctime = sprintf('%0.1f sec', toc(t));
         
@@ -341,9 +341,9 @@ try
             gpf = fail;
         end
         
-        % Execute CalcGamma again using CPU (through unit test flag)
+        % Execute CalcGamma again using CPU
         t = tic;
-        gamma = CalcGamma(ref, target, percent, dta, 'unit', 'cpu', ...
+        gamma = CalcGamma(ref, target, percent, dta, 'cpu', 1, ...
             'local', local);
         ctime = sprintf('%0.1f sec', toc(t));
         
@@ -467,9 +467,9 @@ try
             gpf = fail;
         end
         
-        % Execute CalcGamma again using CPU (through unit test flag)
+        % Execute CalcGamma again using CPU
         t = tic;
-        gamma = CalcGamma(ref, target, percent, dta, 'unit', 'cpu', ...
+        gamma = CalcGamma(ref, target, percent, dta, 'cpu', 1, ...
             'local', local, 'res', res);
         ctime = sprintf('%0.1f sec', toc(t));
         
@@ -578,9 +578,9 @@ try
             gpf = fail;
         end
         
-        % Execute CalcGamma again using CPU (through unit test flag)
+        % Execute CalcGamma again using CPU
         t = tic;
-        gamma = CalcGamma(ref, target, percent, dta, 'unit', 'cpu', ...
+        gamma = CalcGamma(ref, target, percent, dta, 'cpu', 1, ...
             'local', local, 'restrict', restrict);
         ctime = sprintf('%0.1f sec', toc(t));
         
