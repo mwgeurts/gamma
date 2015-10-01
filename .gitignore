@@ -1,5 +1,4 @@
-GPU/
-ganymed-ssh2*
+*.smbdelete*
 .DS_STORE
 *.m~
 log.txt
