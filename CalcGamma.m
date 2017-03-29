@@ -384,11 +384,11 @@ gamma = ones(size(varargin{2}.data)) * (limit ^ 2);
 if restrict == 1
 
     % Compute number of restricted search calcs
-    num = res * (limit * 2) * size(varargin{2}.width, 2);
+    num = (res * (limit * 2) + 1) * size(varargin{2}.width, 2);
 else
 
     % Compute total number of calcs
-    num = res * (limit * 2) ^ size(varargin{2}.width, 2);
+    num = (res * (limit * 2) + 1) ^ size(varargin{2}.width, 2);
 end
 
 % num is the number of iterations, num * numel the total number of
