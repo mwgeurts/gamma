@@ -40,9 +40,9 @@ function gamma = CalcGamma(varargin)
 %   refval: reference value for the global absolute criterion. Is used with 
 %       the percentage from varargin{3} to compute absolute value. If not 
 %       present, the maximum value in the reference data is used.
-%   restrict: restricted search flag. If 1, only the gamma values along the 
-%       X/Y/Z axes are computed during 3D comptation. If 0 or not provided, 
-%       the entire rectangular search space is computed.
+%   restrict: restricted search flag. If 1 or not provided, only the gamma  
+%       values along the X/Y/Z axes are computed during 3D comptation. If 
+%       0, the entire rectangular/volumetric search space is computed.
 %   res: DTA resolution factor.  The number of distance steps equal the
 %       resolution factor multiplied by the limit.  If not provided, the
 %       factor is 100 for 1D/2D and 20 for 3D calculations.
@@ -162,9 +162,9 @@ local = 0;
 refval = max(max(max(varargin{1}.data)));
 
 % restricted search flag. If 1, only the gamma values along the X/Y/Z axes 
-% are computed during 3D comptation. If 0 or not provided, the entire 
-% rectangular search space is computed.
-restrict = 0;
+% are computed during 3D comptation. If 0, the entire rectangular/
+% volumetric search space is computed.
+restrict = 1;
 
 % The resolution parameter determines the number of steps (relative to 
 % the distance to agreement) that each reference voxel will be
@@ -193,7 +193,6 @@ end
 % the maximum believable Gamma Index value.  Typically this value is 2.
 % This should always be set to an integer.
 limit = 2;
-
 
 %% Search for provided options
 % Load data structure from varargin
