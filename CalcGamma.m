@@ -102,8 +102,8 @@ end
 % Check if the reference structure contains width, start, and data fields,
 % and if the size of the width and start vectors are equal
 if ~isfield(varargin{1}, 'width') || ~isfield(varargin{1}, 'start') || ...
-        ~isfield(varargin{1}, 'data') || ~isequal(size(varargin{1}.width), ...
-        size(varargin{1}.start))
+        ~isfield(varargin{1}, 'data') || ~isequal(length(varargin{1}.width), ...
+        length(varargin{1}.start))
     
     % If not, throw an error and stop execution
     if exist('Event', 'file') == 2
@@ -117,8 +117,8 @@ if ~isfield(varargin{1}, 'width') || ~isfield(varargin{1}, 'start') || ...
 % Check if the target structure contains width, start, and data fields,
 % and if the size of the width and start vectors are equal
 elseif ~isfield(varargin{2}, 'width') || ~isfield(varargin{2}, 'start') || ...
-        ~isfield(varargin{2}, 'data') || ~isequal(size(varargin{2}.width), ...
-        size(varargin{2}.start))
+        ~isfield(varargin{2}, 'data') || ~isequal(length(varargin{2}.width), ...
+        length(varargin{2}.start))
     
     % If not, throw an error and stop execution
     if exist('Event', 'file') == 2
@@ -254,7 +254,7 @@ end
 
 %% Compute mesh grids
 % If the reference dataset is 1-D
-if size(varargin{1}.width,2) == 1
+if length(varargin{1}.width) == 1
 
     % Log event
     if exist('Event', 'file') == 2
@@ -273,7 +273,7 @@ if size(varargin{1}.width,2) == 1
         + varargin{1}.width(1) * (size(varargin{1}.data,2) - 1));
     
 % Otherwise, if the reference dataset is 2-D
-elseif size(varargin{1}.width,2) == 2
+elseif length(varargin{1}.width) == 2
 
     % Log event
     if exist('Event', 'file') == 2
@@ -289,7 +289,7 @@ elseif size(varargin{1}.width,2) == 2
         * (size(varargin{1}.data,1) - 1)));
     
 % Otherwise, if the reference dataset is 3-D
-elseif size(varargin{1}.width,2) == 3
+elseif length(varargin{1}.width) == 3
 
     % Log event
     if exist('Event', 'file') == 2
@@ -319,7 +319,7 @@ else
 end
 
 % If the target dataset is 1-D
-if size(varargin{2}.width,2) == 1
+if length(varargin{2}.width) == 1
 
     % Log event
     if exist('Event', 'file') == 2
@@ -338,7 +338,7 @@ if size(varargin{2}.width,2) == 1
         + varargin{2}.width(1) * (size(varargin{2}.data,2) - 1));
     
 % Otherwise, if the target dataset is 2-D
-elseif size(varargin{2}.width,2) == 2
+elseif length(varargin{2}.width) == 2
 
     % Log event
     if exist('Event', 'file') == 2
@@ -354,7 +354,7 @@ elseif size(varargin{2}.width,2) == 2
         * (size(varargin{2}.data,1) - 1)));
     
 % Otherwise, if the target dataset is 3-D
-elseif size(varargin{2}.width,2) == 3
+elseif length(varargin{2}.width) == 3
 
     % Log event
     if exist('Event', 'file') == 2
@@ -428,7 +428,7 @@ try
         k = 0;
         
         % If the data contains a second dimension
-        if size(varargin{1}.width,2) > 1
+        if length(varargin{1}.width) > 1
    
             % Start a for loop to interpolate the dose array along the
             % y-direction.  Note to support parfor loops indices must be
@@ -445,7 +445,7 @@ try
                 k = 0;
                 
                 % If the data contains a third dimension
-                if size(varargin{1}.width, 2) > 2
+                if length(varargin{1}.width) > 2
                     
                     % Start a for loop to interpolate the dose array along 
                     % the z-direction.  Note to support parfor loops 
@@ -542,7 +542,7 @@ catch
         k = 0;
         
         % If the data contains a second dimension
-        if size(varargin{1}.width, 2) > 1
+        if length(varargin{1}.width) > 1
             
             % Start a for loop to interpolate the dose array along the
             % y-direction.  Note to support parfor loops indices must be
@@ -559,7 +559,7 @@ catch
                 k = 0;
                 
                 % If the data contains a third dimension
-                if size(varargin{1}.width, 2) > 2
+                if length(varargin{1}.width) > 2
                     
                     % Start a for loop to interpolate the dose array along 
                     % the z-direction.  Note to support parfor loops 
