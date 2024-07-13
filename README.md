@@ -1,5 +1,7 @@
 # CalcGamma
 
+[![DOI](https://zenodo.org/badge/26833173.svg)](https://zenodo.org/doi/10.5281/zenodo.12735617)
+
 by Mark Geurts <mark.w.geurts@gmail.com>
 <br>Copyright &copy; 2015, University of Wisconsin Board of Regents
 
